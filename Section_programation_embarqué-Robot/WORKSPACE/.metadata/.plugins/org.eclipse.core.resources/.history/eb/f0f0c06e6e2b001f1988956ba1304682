@@ -1,0 +1,210 @@
+#include "stm32f4xx.h"
+#include "stm32f4xx_nucleo.h"
+
+#include "drv_uart.h"
+#include "dynamixel.h"
+
+extern uint8_t car_received;
+
+
+
+
+int main(void)
+{
+	HAL_Init();	// passage par stm32f4xx_hal_msp.c : configuration des broches
+	SystemClock_Config();
+	HAL_GPIO_LINE_MspInit();
+
+    uart1_Init();			// ZIGBEE
+    uart2_Init();           // CABLE
+    uart6_Init();           // DYNAMIXEL
+    HAL_Delay(500);
+
+
+	dxl_LED(1, LED_ON);
+	HAL_Delay(500);
+	dxl_LED(1, LED_OFF);
+	HAL_Delay(500);
+	dxl_LED(1, LED_ON );
+	HAL_Delay(500);
+	dxl_LED(1, LED_OFF);
+	HAL_Delay(500);
+
+	dxl_LED(2, LED_ON);
+		HAL_Delay(500);
+		dxl_LED(2, LED_OFF);
+		HAL_Delay(500);
+		dxl_LED(2, LED_ON );
+		HAL_Delay(500);
+		dxl_LED(2, LED_OFF);
+		HAL_Delay(500);
+
+	dxl_setOperatingMode(1, VELOCITY_MODE);
+	dxl_torque(1, TORQUE_ON);
+	dxl_setGoalVelocity(1, 140);
+	dxl_setOperatingMode(2, VELOCITY_MODE);
+	dxl_torque(2, TORQUE_ON);
+	dxl_setGoalVelocity(2, -140);
+	HAL_Delay(300);
+	dxl_setGoalVelocity(1, 0);
+	dxl_setGoalVelocity(2, 0);
+	//static int i=50;
+
+	  int vitess_send = 100;
+	  int32_t rd ;
+
+	    while(1)
+	    {
+	    				rd = dxl_getPresentVelocity(1);
+	    				term_printf_zigbee("vitesse actuel roue 1 : %d",rd);
+
+	    		    	switch(car_received){
+	    		    	//avancer
+	    		    	case 'a':
+	    		    		dxl_setGoalVelocity(1, vitess_send);
+	    		    		dxl_setGoalVelocity(2, -vitess_send);
+	    		    		break;
+
+	    		    	//stop
+	    		    	case 's':
+	    		    		dxl_setGoalVelocity(1, 0);
+	    		    		dxl_setGoalVelocity(2, 0);
+	    		    		break;
+
+	    		    	//augmenter vitesse avancer
+	    		    	case 'v':
+	    		     		dxl_setGoalVelocity(1, 200);
+	    		    		dxl_setGoalVelocity(2, -200);
+	    		    		break;
+
+	    		    	//augmenter vitesse reculer
+	    		    	case 'h':
+	    		    		dxl_setGoalVelocity(1, -200);
+	    		    		dxl_setGoalVelocity(2, 200);
+	    		    		break;
+
+	    		    	//reculer
+	    		    	case 'y':
+	    		    		 dxl_setGoalVelocity(1, -vitess_send);
+	    		    		 dxl_setGoalVelocity(2, vitess_send);
+	       		    		break;
+
+	       		    	//avancer gauhe
+	    		    	case 'q' :
+	    		    		dxl_setGoalVelocity(1, 10);
+	    		    		dxl_setGoalVelocity(2, -vitess_send);
+	    		    		break;
+
+	    		    	//avancer droite
+	    		    	case'e' :
+	    		    		dxl_setGoalVelocity(1, vitess_send);
+	    		    		dxl_setGoalVelocity(2, -10);
+	    		    		break;
+
+	    		    	//reculer gauche
+	    		    	case'g' :
+	    		    		dxl_setGoalVelocity(1, -30);
+	    		    		dxl_setGoalVelocity(2, vitess_send);
+	    		    		 break;
+
+	    		    	//reculer droite
+	    		    	case'j' :
+	    		    		dxl_setGoalVelocity(1, -vitess_send);
+	    		    		dxl_setGoalVelocity(2, 30);
+	    		    		  break;
+
+	    		    	//vitesse ++
+	    		    	case'x' :
+	    		    		vitess_send = vitess_send + 10;
+//	    		    		dxl_setGoalVelocity(1, vitess_send);
+//	    		    		dxl_setGoalVelocity(2, -vitess_send);
+	    		    		 break;
+	    		    	//vitesse --
+	    		    	case'w' :
+	    		    		vitess_send = vitess_send - 10;
+//	    		    		dxl_setGoalVelocity(1, -vitess_send);
+//	    		    		dxl_setGoalVelocity(2, vitess_send);
+	    		    		 break;
+
+	    		    	case't' :
+
+	    		    		dxl_setGoalVelocity(1, 100);
+	    		    		dxl_setGoalVelocity(2, -255);
+	    		    		break;
+
+	    		    	case 'l':
+	    		    		//cas 1 :
+	    		    		GPIO_PinState lineState1 = HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0);
+	    		    		GPIO_PinState lineState2 = HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1);
+
+//	    		    		    		    		  // Si la ligne est détectée, afficher un message
+//	    		    		    		    		if (lineState1 == GPIO_PIN_SET && lineState2 == GPIO_PIN_SET) {
+//	    		    		    		    		    // Les deux capteurs détectent la ligne noire
+//	    		    		    		    		    dxl_setGoalVelocity(1, 50);  // Arrêter le moteur gauche
+//	    		    		    		    		    dxl_setGoalVelocity(2, -50);  // Arrêter le moteur droit
+//	    		    		    		    		    term_printf_zigbee("Both Sensors Detect Line - Forward!\n");
+//	    		    		    		    		    break;
+//
+//	    		    		    		    		} else if (lineState1 == GPIO_PIN_SET) {
+//	    		    		    		    		    // Seulement le capteur gauche détecte la ligne noire
+//	    		    		    		    		    dxl_setGoalVelocity(1, 50); // Tourner à gauche
+//	    		    		    		    		    dxl_setGoalVelocity(2, -10);  // Tourner à gauche
+//	    		    		    		    		    term_printf_zigbee("Left Sensor Detects Line - Turn Left!\n");
+//	    		    		    		    		    break;
+//
+//	    		    		    		    		} else if (lineState2 == GPIO_PIN_SET) {
+//	    		    		    		    		    // Seulement le capteur droit détecte la ligne noire
+//	    		    		    		    		    dxl_setGoalVelocity(1, 10);  // Tourner à droite
+//	    		    		    		    		    dxl_setGoalVelocity(2, -50); // Tourner à droite
+//	    		    		    		    		    term_printf_zigbee("Right Sensor Detects Line - Turn Right!\n");
+//	    		    		    		    		    break;
+//
+//	    		    		    		    		} else {
+//	    		    		    		    		    // Aucun capteur ne détecte la ligne noire
+//	    		    		    		    		    dxl_setGoalVelocity(1, 0);  // Avancer tout droit
+//	    		    		    		    		    dxl_setGoalVelocity(2, 0);  // Avancer tout droit
+//	    		    		    		    		    term_printf_zigbee("No Line Detected - Move Stop!\n");
+//	    		    		    		    		    break;
+//
+//	    		    		    		    		}
+	    		    			//cas 2 :
+
+	    		    								// Si la ligne est détectée, afficher un message
+	    		    		    		    		  if (lineState1 == GPIO_PIN_SET && lineState2 == GPIO_PIN_SET) {
+	    		    		    		    		      // Les deux capteurs détectent la ligne noire
+	    		    		    		    		      dxl_setGoalVelocity(1, 50);  // Arrêter le moteur gauche
+	    		    		    		    		      dxl_setGoalVelocity(2, -50);  // Arrêter le moteur droit
+	    		    		    		    		     term_printf_zigbee("Both Sensors Detect Line - Forward!\n");
+	    		    		    		    		      break;
+
+	    		    		    		    		  } else if (lineState2 == GPIO_PIN_SET) {
+	    		    		    		    		      // Seulement le capteur gauche détecte la ligne noire
+	    		    		    		    		      dxl_setGoalVelocity(1, 50); // Tourner à gauche
+	    		    		    		    		      dxl_setGoalVelocity(2, -10);  // Tourner à gauche
+	    		    		    		    		      term_printf_zigbee("Left Sensor Detects Line - Turn Left!\n");
+
+	    		    		    		    		  } else if (lineState1 == GPIO_PIN_SET) {
+	    		    		    		    		      // Seulement le capteur droit détecte la ligne noire
+	    		    		    		    		      dxl_setGoalVelocity(1, 10);  // Tourner à droite
+	    		    		    		    		      dxl_setGoalVelocity(2, -50); // Tourner à droite
+	    		    		    		    		      term_printf_zigbee("Right Sensor Detects Line - Turn Right!\n");
+	    		    		    		    		      break;
+
+	    		    		    		    		  } else {
+	    		    		    		    		      // Aucun capteur ne détecte la ligne noire
+	    		    		    		    		      dxl_setGoalVelocity(1, 0);  // Avancer tout droit
+	    		    		    		    		      dxl_setGoalVelocity(2, 0);  // Avancer tout droit
+	    		    		    		    		      term_printf_zigbee("No Line Detected - Move Stop!\n");
+	    		    		    		    		      break;
+
+	    		    		    		    		  }
+		    	}
+//
+
+
+
+	        HAL_Delay(100); // 100 ms
+	    }
+	    return 0;
+}
+//=====================================================================================

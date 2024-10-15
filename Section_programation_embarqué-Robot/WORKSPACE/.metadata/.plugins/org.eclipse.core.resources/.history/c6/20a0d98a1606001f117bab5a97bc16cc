@@ -1,0 +1,140 @@
+#include "stm32f4xx.h"
+#include "stm32f4xx_nucleo.h"
+
+#include "drv_uart.h"
+#include "dynamixel.h"
+
+extern uint8_t car_received;
+
+void init_capteur(void) {
+    GPIO_InitTypeDef GPIO_InitStruct = {0};
+
+    // Activation de l'horloge pour GPIOA
+    __HAL_RCC_GPIOA_CLK_ENABLE();
+
+    // Configuration de la broche GPIO pour le capteur
+    GPIO_InitStruct.Pin = GPIO_PIN_0; // Broche PA0
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+}
+
+int main(void)
+{
+	HAL_Init();	// passage par stm32f4xx_hal_msp.c : configuration des broches
+	SystemClock_Config();
+	init_capteur();
+
+    uart1_Init();			// ZIGBEE
+    uart2_Init();           // CABLE
+    uart6_Init();           // DYNAMIXEL
+    HAL_Delay(500);
+
+
+	dxl_LED(1, LED_ON);
+	HAL_Delay(500);
+	dxl_LED(1, LED_OFF);
+	HAL_Delay(500);
+	dxl_LED(1, LED_ON );
+	HAL_Delay(500);
+	dxl_LED(1, LED_OFF);
+	HAL_Delay(500);
+
+	dxl_LED(2, LED_ON);
+		HAL_Delay(500);
+		dxl_LED(2, LED_OFF);
+		HAL_Delay(500);
+		dxl_LED(2, LED_ON );
+		HAL_Delay(500);
+		dxl_LED(2, LED_OFF);
+		HAL_Delay(500);
+
+	dxl_setOperatingMode(1, VELOCITY_MODE);
+	dxl_torque(1, TORQUE_ON);
+	dxl_setGoalVelocity(1, 140);
+	dxl_setOperatingMode(2, VELOCITY_MODE);
+	dxl_torque(2, TORQUE_ON);
+	dxl_setGoalVelocity(2, -140);
+
+
+	//static int i=50;
+
+
+	    while(1)
+	    {
+
+	    		    	switch(car_received){
+	    		    	//avancer
+	    		    	case 'a':
+	    		    		dxl_setGoalVelocity(1, 140);
+	    		    		dxl_setGoalVelocity(2, -140);
+	    		    		break;
+
+	    		    	//stop
+	    		    	case 's':
+	    		    		dxl_setGoalVelocity(1, 0);
+	    		    		dxl_setGoalVelocity(2, 0);
+	    		    		break;
+
+	    		    	//augmenter vitesse avancer
+	    		    	case 'v':
+	    		     		dxl_setGoalVelocity(1, 200);
+	    		    		dxl_setGoalVelocity(2, -200);
+	    		    		break;
+
+	    		    	//augmenter vitesse reculer
+	    		    	case 'h':
+	    		    		dxl_setGoalVelocity(1, -200);
+	    		    		dxl_setGoalVelocity(2, 200);
+	    		    		break;
+
+	    		    	//reculer
+	    		    	case 'y':
+	    		    		 dxl_setGoalVelocity(1, -140);
+	    		    		 dxl_setGoalVelocity(2, 140);
+	       		    		break;
+
+	       		    	//avancer gauhe
+	    		    	case 'q' :
+	    		    		dxl_setGoalVelocity(1, 10);
+	    		    		dxl_setGoalVelocity(2, -140);
+	    		    		break;
+
+	    		    	//avancer droite
+	    		    	case'e' :
+	    		    		dxl_setGoalVelocity(1, 140);
+	    		    		dxl_setGoalVelocity(2, -10);
+	    		    		break;
+
+	    		    	//reculer gauche
+	    		    	case'g' :
+	    		    		dxl_setGoalVelocity(1, -30);
+	    		    		dxl_setGoalVelocity(2, 140);
+	    		    		 break;
+
+	    		    	//reculer droite
+	    		    	case'j' :
+	    		    		dxl_setGoalVelocity(1, -140);
+	    		    		dxl_setGoalVelocity(2, 30);
+	    		    		  break;
+
+
+
+
+
+
+	    		    	}
+//	    	if( i > 0)
+//	    	{
+//	    		i--;
+//	    	}
+//	    	else
+//	    	{
+//	    		dxl_setGoalVelocity(1, 0);
+//	    		dxl_setGoalVelocity(2, 0);
+//	    	}
+	        HAL_Delay(100); // 100 ms
+	    }
+	    return 0;
+}
+//=====================================================================================

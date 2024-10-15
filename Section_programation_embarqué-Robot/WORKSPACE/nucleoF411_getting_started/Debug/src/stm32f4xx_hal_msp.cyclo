@@ -1,0 +1,13 @@
+../src/stm32f4xx_hal_msp.c:21:6:HAL_MspInit	1
+../src/stm32f4xx_hal_msp.c:45:6:HAL_GPIO_DYN_wrEn_MspInit	1
+../src/stm32f4xx_hal_msp.c:62:6:HAL_UARTCOM_MspInit	1
+../src/stm32f4xx_hal_msp.c:87:6:HAL_UART1_MspInit	1
+../src/stm32f4xx_hal_msp.c:120:6:HAL_UARTDYN_MspInit	1
+../src/stm32f4xx_hal_msp.c:155:6:HAL_GPIO_BUTTON_MspInit	1
+../src/stm32f4xx_hal_msp.c:168:6:HAL_GPIO_LINE_MspInit	1
+../src/stm32f4xx_hal_msp.c:192:6:HAL_GPIO_LED_MspInit	1
+../src/stm32f4xx_hal_msp.c:211:6:HAL_i2c_MspInit	1
+../src/stm32f4xx_hal_msp.c:236:6:HAL_tickTimer_MspInit	1
+../src/stm32f4xx_hal_msp.c:253:6:HAL_spi_MspInit	1
+../src/stm32f4xx_hal_msp.c:274:6:HAL_adcir_MspInit	1
+../src/stm32f4xx_hal_msp.c:290:6:HAL_MspDeInit	1
